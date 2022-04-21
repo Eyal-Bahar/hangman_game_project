@@ -1,49 +1,6 @@
 # Write your code here
 import random
 
-# class Winner(Exception):
-#     pass
-#
-# def print_missing(word, non_missing_idxs):
-#     full_hiphen = "-" * (len(word))
-#     to_show = list(full_hiphen)
-#     word_list = list(word)
-#     for idx in non_missing_idxs:
-#         to_show[idx] = word_list[idx]
-#     to_show = "".join(to_show)
-#     print(f"{to_show}")
-#
-#
-# ATTEMPTS = 8
-# WORD_BANK = ["python", "java", "swift", "javascript"]
-# word = random.choice(WORD_BANK)
-# print("""H A N G M A N"\n""")
-#
-# non_missing_idxs = []
-# ATTEMPTS_made = 0
-# try:
-#     while ATTEMPTS_made < ATTEMPTS:
-#         print_missing(word, non_missing_idxs)
-#         if len(set(non_missing_idxs)) == len(word):
-#             raise Winner
-#         print("Input a letter:")
-#         letter = input()
-#         if letter not in word:
-#             print("That letter doesn't appear in the word.")
-#             ATTEMPTS_made += 1
-#         else:
-#             found_letter_idx = [pos for pos, char in enumerate(word) if char == letter]
-#
-#             if found_letter_idx[0] in non_missing_idxs:
-#                 print("No improvements.")
-#                 ATTEMPTS_made += 1
-#             non_missing_idxs = non_missing_idxs + found_letter_idx
-#     print("You lost!")
-#
-# except Winner:
-#     print("""You guessed the word!
-#     You survived!""")
-
 class Ui:
     def __init__(self):
         pass
@@ -64,12 +21,23 @@ class Ui:
     def no_improvment(self):
         print("No improvements.")
 
-    def winner_msg(self):
-        print("""You guessed the word!
-        You survived!""")
+    def winner_msg(self, word):
+        print(f"""You guessed the word {word}!\nYou survived!""")
 
     def loser_msg(self):
         print("You lost!")
+
+    def input_check_faild(self, reason):
+        if reason == "length":
+            print("Please, input a single letter.")
+            return
+        if reason == "case":
+            print("Please, enter a lowercase letter from the English alphabet.")
+            return
+        if reason == "novel input":
+            msg = "You've already guessed this letter."
+            print(msg)
+
 
 class HangMan:
     ATTEMPTS_allowed = 8
@@ -81,15 +49,17 @@ class HangMan:
         self.known_word_idxs = []
         self.ATTEMPTS_left = self.ATTEMPTS_allowed
         self.partially_revealed: str = "-" * (len(self.word))
+        self.previous_guesses =[]
 
     def play(self):
         self.ui.startup_up()
         while self.ATTEMPTS_left:
             self.ui.show_known(self.partially_revealed)
             if self.winner():
-                self.ui.winner_msg()
+                self.ui.winner_msg(self.word)
                 return
             self.take_letter()
+            self.previous_guesses.append(self.letter)
             if self.check_attempt():
                 matching_letter_idxs = self.find_letter_idx()
                 self.update_know_word_idxs(matching_letter_idxs)
@@ -106,6 +76,22 @@ class HangMan:
 
     def take_letter(self):
         self.letter = self.ui.request_letter()
+
+        while self.check_input_length(self.letter) != "valid length":
+            self.ui.input_check_faild("length")
+            self.ui.show_known(self.partially_revealed)
+            self.letter = self.take_letter()
+
+        while self.check_input_case(self.letter) != "valid case":
+            self.ui.input_check_faild("case")
+            self.ui.show_known(self.partially_revealed)
+            self.letter = self.take_letter()
+
+        while self.check_input_novelty(self.letter) != "novel input":
+            self.ui.input_check_faild("novel input")
+            self.ui.show_known(self.partially_revealed)
+            self.letter = self.take_letter()
+        return self.letter
 
     def check_attempt(self):
         if self.letter not in self.word:
@@ -134,6 +120,24 @@ class HangMan:
 
     def winner(self):
         return len(set(self.known_word_idxs)) == len(self.word)
+
+    def check_input_length(self, letter):
+        if len(letter) == 1 and letter != " ":
+            return "valid length"
+        else:
+            return "unvalid"
+
+    def check_input_case(self, letter):
+        if letter.islower():
+            return "valid case"
+        else:
+            return "unvalid"
+
+    def check_input_novelty(self, letter):
+        if letter not in self.previous_guesses:
+            return "novel input"
+        else:
+            "unvalid"
 
 
 if __name__ == '__main__':
