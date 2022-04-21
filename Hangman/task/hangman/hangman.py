@@ -6,7 +6,7 @@ class Ui:
         pass
 
     def startup_up(self):
-        print("""H A N G M A N"\n""")
+        print("""H A N G M A N\n""")
 
     def show_known(self, partially_revealed):
         print(f"{partially_revealed}")
@@ -38,25 +38,46 @@ class Ui:
             msg = "You've already guessed this letter."
             print(msg)
 
+    def startup_up_menu(self):
+        valid_responses = ["play", "results", "exit"]
+        response = None
+        while response not in valid_responses:
+            print("""Type "play" to play the game, "results" to show the scoreboard, and "exit" to quit:""")
+            response = input()
+        return response
+
+    def show_results(self, wins, loses):
+        print(f"You won: {wins} times.")
+        print(f"You lost: {loses} times.")
+
 
 class HangMan:
     ATTEMPTS_allowed = 8
     WORD_BANK = ["python", "java", "swift", "javascript"]
-    word = random.choice(WORD_BANK)
 
     def __init__(self) -> None:
         self.ui = Ui()
+        self.restart_game_params()
+        self.wins = 0
+        self.loses = 0
+        self.ui.startup_up()
+
+    def restart_game_params(self):
+        self.word = random.choice(self.WORD_BANK)
         self.known_word_idxs = []
         self.ATTEMPTS_left = self.ATTEMPTS_allowed
         self.partially_revealed: str = "-" * (len(self.word))
-        self.previous_guesses =[]
+        self.previous_guesses = []
 
     def play(self):
-        self.ui.startup_up()
+        if self.wins + self.loses > 0:
+            self.restart_game_params()
+
         while self.ATTEMPTS_left:
             self.ui.show_known(self.partially_revealed)
             if self.winner():
                 self.ui.winner_msg(self.word)
+                self.wins += 1
                 return
             self.take_letter()
             self.previous_guesses.append(self.letter)
@@ -65,6 +86,7 @@ class HangMan:
                 self.update_know_word_idxs(matching_letter_idxs)
                 self.update_partially_revealed()
         self.ui.loser_msg()
+        self.loses += 1
 
     def update_partially_revealed(self):
         full_hiphen = "-" * (len(self.word))
@@ -139,9 +161,27 @@ class HangMan:
         else:
             "unvalid"
 
+    def start_up_menu(self):
+
+        play_answer = self.ui.startup_up_menu()
+        return play_answer
+
+    def show_results(self):
+        self.ui.show_results(self.wins, self.loses)
+
+
+
 
 if __name__ == '__main__':
     hangman = HangMan()
-    hangman.play()
+    play_answer = "None"
+    while play_answer != "exit":
+        play_answer = hangman.start_up_menu()
+        if play_answer == "play":
+            hangman.play()
+        if play_answer == "results":
+            hangman.show_results()
+
+
 
 
