@@ -74,13 +74,13 @@ class Ui:
 
 
 
-class HangMan(Ui):
+class HangMan:
     ATTEMPTS_allowed = 8
     WORD_BANK = ["python", "java", "swift", "javascript"]
     word = random.choice(WORD_BANK)
 
-    def __init__(self):
-        self.ui = Ui
+    def __init__(self) -> None:
+        self.ui = Ui()
         self.known_word_idxs = []
         self.ATTEMPTS_left = self.ATTEMPTS_allowed
         self.partially_revealed: str = "-" * (len(self.word))
@@ -103,7 +103,7 @@ class HangMan(Ui):
         full_hiphen = "-" * (len(self.word))
         partially_revealed_list = list(full_hiphen)
         word_list = list(self.word)
-        for idx in self.update_know_word_idxs:
+        for idx in self.known_word_idxs:
             partially_revealed_list[idx] = word_list[idx]
         self.partially_revealed = "".join(partially_revealed_list)
 
@@ -119,7 +119,7 @@ class HangMan(Ui):
             return True
 
     def count_attempt(self):
-        self.ATTEMPTS_made -= 1
+        self.ATTEMPTS_allowed -= 1
 
     def find_letter_idx(self):
         letter_idxs = [pos for pos, char in enumerate(self.word) if char == self.letter]
@@ -140,7 +140,7 @@ class HangMan(Ui):
 
 
 if __name__ == '__main__':
-    hangman = HangMan
+    hangman = HangMan()
     hangman.play()
 
 
