@@ -71,9 +71,6 @@ class Ui:
     def loser_msg(self):
         print("You lost!")
 
-
-
-
 class HangMan:
     ATTEMPTS_allowed = 8
     WORD_BANK = ["python", "java", "swift", "javascript"]
@@ -119,7 +116,7 @@ class HangMan:
             return True
 
     def count_attempt(self):
-        self.ATTEMPTS_allowed -= 1
+        self.ATTEMPTS_left -= 1
 
     def find_letter_idx(self):
         letter_idxs = [pos for pos, char in enumerate(self.word) if char == self.letter]
